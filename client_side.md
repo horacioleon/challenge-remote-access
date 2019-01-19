@@ -91,7 +91,6 @@ If the execution of this command is successfully, we will get a rsa key pair, on
 
 This command ask to you the path to save the key, please introduce /root/.ssh/client-a, after that they ask you for a passphrase, please don't introduce any passphrase, just press ENTER. If everything is ok you can see on your terminal the fingerprint and randomart of your key.
 
-#### Example
 ```
 [root@client-a ~]# ssh-keygen -t rsa -b 4096
 Generating public/private rsa key pair.
@@ -139,7 +138,7 @@ and check to make sure that only the key(s) you wanted were added.
 ```
 Now your public rsa key is saved on the server-a and you can login without password.
 
-#### Example
+
 ````
 [root@client-a ~]# ssh-copy-id -i /root/.ssh/client-a client-a@server-a
 /usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/root/.ssh/client-a.pub"
@@ -168,8 +167,8 @@ Connection to server-a closed.
 
 ### proxy_ssh Service
 
-#### Create configuration file for proxy_ssh@server-A
-Create a file proxy_ssh@client-a on /etc/default/ path. Change to the the directory using the cd command.
+#### Create configuration file for proxy_ssh@server-a
+Create a file proxy_ssh@server-a on /etc/default/ path. Change to the the directory using the cd command.
 
 `` cd /etc/default ``
 
@@ -179,7 +178,7 @@ Now you have to create the file proxy_ssh@server-a and add the followings values
 ````
 LOCAL_ADDR=localhost
 LOCAL_PORT=8000
-REMOTE_PORT=8001
+REMOTE_PORT=18000
 RSA_KEY=/root/.ssh/client-a
 REMOTE_ADDR=server-a
 CLIENT_USER=client-a
@@ -213,6 +212,7 @@ LOCAL_PORT=8000
 REMOTE_PORT=8000
 RSA_KEY=/root/.ssh/client-a
 REMOTE_ADDR=server-a
+CLIENT_USER=client-a
 ````
 Now check the content of your configuration file using the command more
 
