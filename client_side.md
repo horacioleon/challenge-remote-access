@@ -1,6 +1,6 @@
-#Client side
+# Client side
 
-##Considerations
+## Considerations
 1. The autentication over the ssh server use a RSA key instead of password to increasse the security.
 2. Each client need their own user, password and key to access to the server-A. 
 3. This rsa-key is not encrypted by password, but will be save on the /root/.ssh folder
@@ -10,8 +10,8 @@
 6. All users on client-a machine can access to the web application on server-b
 7. All tools and aplications used on cliente-a and server-a com by default with CentOS 7 and this was the main reason to chose a ssh as a proxy http.
 
-##Configuration
-###Access to the machine client-a
+## Configuration
+### Access to the machine client-a
 
 Check if you have access to the client-a machine ussing any ssh client
 
@@ -80,7 +80,7 @@ Check if you have access to the client-a machine ussing any ssh client
 
 <mark>If you can access to the machine, contact your local support to help you, without access you can't continue with the procedure.</mark>
 
-###Create RSA keys
+### Create RSA keys
 Create on /root/.ssh/ a RSA key named "client-a" to be use on ssh login (use root user)
 
 command to use: ``ssh-keygen -t rsa -b 4096``
@@ -91,7 +91,7 @@ If the execution of this command is successfully, we will get a rsa key pair, on
 
 This command ask to you the path to save the key, please introduce /root/.ssh/client-a, after that they ask you for a passphrase, please dont introduce any passphrase, just press ENTER. If everything is ok you can see on your terminal the fingerprint and randomart of your key.
 
-####Example
+#### Example
 ```
 [root@client-a ~]# ssh-keygen -t rsa -b 4096
 Generating public/private rsa key pair.
@@ -117,13 +117,13 @@ The key's randomart image is:
 +----[SHA256]-----+
 ```
 
-####Know errors
+#### Know errors
 
 1. If for any reason the ssh-keygen command is not present on the machine (the app come by default with CentOS 7 minimal) you can install using yum.
 
 	command to use: ``yum install openssh openssh-clients``
 
-###Copy public key to Server A
+### Copy public key to Server A
 
 To copy your public key to the remote server A, you have to run the following command:
 
@@ -139,7 +139,7 @@ and check to make sure that only the key(s) you wanted were added.
 ```
 Now your public rsa key is saved on the server-a and you can login without password.
 
-####Example
+#### Example
 ````
 [root@client-a ~]# ssh-copy-id -i /root/.ssh/client-a client-a@server-a
 /usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/root/.ssh/client-a.pub"
@@ -156,7 +156,7 @@ Number of key(s) added: 1
 Now try logging into the machine, with:   "ssh 'client-a@server-a'"
 and check to make sure that only the key(s) you wanted were added.
 ````
-####Test your access
+#### Test your access
 
 ````
 [root@client-a ~]# ssh -i /root/.ssh/client-a client-a@server-a
@@ -166,9 +166,9 @@ Connection to server-a closed.
 [root@client-a ~]# 
 ````
 
-###proxy_ssh Service
+### proxy_ssh Service
 
-####Create configuration file for proxy_ssh@cliente-A
+#### Create configuration file for proxy_ssh@cliente-A
 Create a file proxy_ssh@client-a on /etc/default/ path. Change to the the directory using the cd command.
 
 `` cd /etc/default ``
@@ -226,7 +226,7 @@ RSA_KEY=/root/.ssh/client-a
 REMOTE_ADDR=server-a
 ````
 
-####Create service proxy_ssh@client-a
+#### Create service proxy_ssh@client-a
 
 ````
 [Unit]
