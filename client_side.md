@@ -1,19 +1,19 @@
 # Client side
 
 ## Considerations
-1. The autentication over the ssh server use a RSA key instead of password to increasse the security.
+1. The authentication over the ssh server use a RSA key instead of password to increases the security.
 2. Each client need their own user, password and key to access to the server-A. 
 3. This rsa-key is not encrypted by password, but will be save on the /root/.ssh folder
 4. The tunnel ssh is started as a service
 5. Client A has root access to the machine, but is not an advanced user.
-6. Client A has can reach an have access to the machine via ssh
+6. Client A can reach and have access to the machine via ssh
 6. All users on client-a machine can access to the web application on server-b
-7. All tools and aplications used on cliente-a and server-a com by default with CentOS 7 and this was the main reason to chose a ssh as a proxy http.
+7. All tools and applications used on client-a and server-a come by default with CentOS 7 and this was the main reason to choose a ssh as a proxy http.
 
 ## Configuration
 ### Access to the machine client-a
 
-Check if you have access to the client-a machine ussing any ssh client
+Check if you have access to the client-a machine using any ssh client
 
 * [IP Address](https://en.wikipedia.org/wiki/IP_address) or [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) of client-a machine.
 	* ex: 192.168.0.204 or client-a.local.com
@@ -30,7 +30,7 @@ Check if you have access to the client-a machine ussing any ssh client
 			
 			``ssh root@192.168.0.204`
 		
-			Accept the key fingerprint wrinting "yes" and press ENTER, then put your password.
+			Accept the key fingerprint writing "yes" and press ENTER, then put your password.
 		
 			````
 			[user@localhost ~]$ ssh root@client-a
@@ -45,7 +45,7 @@ Check if you have access to the client-a machine ussing any ssh client
 			````
 		
 	- Linux
-		- 	Open your prefered terminal emulator and execute the following command.
+		- 	Open your preferred terminal emulator and execute the following command.
 		
 			``ssh root@client-a.local.com``
 			
@@ -53,7 +53,7 @@ Check if you have access to the client-a machine ussing any ssh client
 			
 			``ssh root@192.168.0.204`
 		
-			Accept the key fingerprint wrinting "yes" and press ENTER, then put your password.
+			Accept the key fingerprint writing "yes" and press ENTER, then put your password.
 		
 			````
 			[user@localhost ~]$ ssh root@client-a
@@ -69,16 +69,16 @@ Check if you have access to the client-a machine ussing any ssh client
 
 		
 	- Windows
-		- Microsft Windows has no native ssh client, but you can install putty to access to servers that only accept ssh conections.
+		- Microsoft Windows has no native ssh client, but you can install putty to access to servers that only accept ssh connections.
 		
-			To dowload go to the putty web ([here](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)), chose the "MSI (‘Windows Installer’)" acording to the arquitecture of your machine, if your don't know if your machine is 32bit or 64bit, choose 32bit.
-			Putty has clasic instaler, Next , Next , Next and finish. When the processs finish, you can find putty on your program list.
+			To download go to the putty web ([here](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)), chose the "MSI (‘Windows Installer’)" according to the architecture of your machine, if your don't know if your machine is 32bit or 64bit, choose 32bit.
+			Putty has classic installer, Next , Next , Next and finish. When the process finish, you can find putty on your program list.
 			
-			Open putty, you can see at the session category on the rigth side, few blank text box, on text box "Host Name (or IP Address), put the client-a ip or FQDN server name.
+			Open putty, you can see at the session category on the right side, few blank text box, on text box "Host Name (or IP Address), put the client-a ip or FQDN server name.
 			
 			
 
-<mark>If you can access to the machine, contact your local support to help you, without access you can't continue with the procedure.</mark>
+If you can access to the machine, contact your local support to help you, without access you can't continue with the procedure.
 
 ### Create RSA keys
 Create on /root/.ssh/ a RSA key named "client-a" to be use on ssh login (use root user)
@@ -89,7 +89,7 @@ ssh-keygen is an app to create encrypted keys, in this case we going to create a
 
 If the execution of this command is successfully, we will get a rsa key pair, one private (client-a), used to configured the service and one public key (client-a.pub), this public key has to be loaded on the server-b (see on the followings steps).
 
-This command ask to you the path to save the key, please introduce /root/.ssh/client-a, after that they ask you for a passphrase, please dont introduce any passphrase, just press ENTER. If everything is ok you can see on your terminal the fingerprint and randomart of your key.
+This command ask to you the path to save the key, please introduce /root/.ssh/client-a, after that they ask you for a passphrase, please don't introduce any passphrase, just press ENTER. If everything is ok you can see on your terminal the fingerprint and randomart of your key.
 
 #### Example
 ```
@@ -129,7 +129,7 @@ To copy your public key to the remote server A, you have to run the following co
 
 ``ssh-copy-id -i /root/.ssh/client-a client-a@server-a``
 
-This command ask you at the begining if you accept the key fingerprinr, write "yes" and press ENTER, then you have to insert your password.
+This command ask you at the beginning if you accept the key fingerprint, write "yes" and press ENTER, then you have to insert your password.
 
 If everything is ok, you can see at the end of the command execution a message like 
 
@@ -192,7 +192,7 @@ You can see now a empty file and in the bottom the full path and a tag [New File
  
 ``"/etc/default/proxy_ssh@client-a" [New File]``
 
-If you don't see this things maybe you are on the wrong path or file, please press ESC key, then ":" (without the "), now you can give orders to vi, we have to quit the editor, now write "q!" (without the ") and after ENTER. Check the path with pwd commnad, then check the name of the file.
+If you don't see this things maybe you are on the wrong path or file, please press ESC key, then ":" (without the "), now you can give orders to vi, we have to quit the editor, now write "q!" (without the ") and after ENTER. Check the path with pwd command, then check the name of the file.
 
 ````
 [root@client-a default]# pwd
@@ -203,7 +203,7 @@ For some people vi is a little bit complicated to use, is you have problems you 
 
 ``cat > /etc/default/proxy_ssh@client-a``
 
-After run the command, you will see the cursor of the terminal below the promt of your terminal, now you can paste the configuration values, after past the values, press ENTER and then ctrl+D to exit.
+After run the command, you will see the cursor of the terminal below the prompt of your terminal, now you can paste the configuration values, after past the values, press ENTER and then ctrl+D to exit.
 
 ````
 [root@client-a default]# cat > /etc/default/proxy_ssh@client-a
@@ -243,5 +243,22 @@ Restart=always
 [Install]
 WantedBy=default.target
 ````
+
+#### Enabled service on startup
+
+
+#### proxy_ssh service management
+
+start
+
+stop
+
+restart
+
+status
+
+### Troubleshooting
+
+
 
 
