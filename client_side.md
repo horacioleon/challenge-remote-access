@@ -168,29 +168,30 @@ Connection to server-a closed.
 
 ### proxy_ssh Service
 
-#### Create configuration file for proxy_ssh@cliente-A
+#### Create configuration file for proxy_ssh@server-A
 Create a file proxy_ssh@client-a on /etc/default/ path. Change to the the directory using the cd command.
 
 `` cd /etc/default ``
 
-Now you have to create the file proxy_ssh@client-a and add the followings values:
+Now you have to create the file proxy_ssh@server-a and add the followings values:
 
 
 ````
 LOCAL_ADDR=localhost
 LOCAL_PORT=8000
-REMOTE_PORT=8000
+REMOTE_PORT=8001
 RSA_KEY=/root/.ssh/client-a
 REMOTE_ADDR=server-a
+CLIENT_USER=client-a
 ````
 
-To create and edit the file we going to use vi (a simple tex editor). To open vi and start to work on our proxy_ssh@client-a file, run the following command.
+To create and edit the file we going to use vi (a simple tex editor). To open vi and start to work on our proxy_ssh@server-a file, run the following command.
 
-`` vi proxy_ssh@client-a``
+`` vi proxy_ssh@server-a``
 
 You can see now a empty file and in the bottom the full path and a tag [New File].
  
-``"/etc/default/proxy_ssh@client-a" [New File]``
+``"/etc/default/proxy_ssh@server-a" [New File]``
 
 If you don't see this things maybe you are on the wrong path or file, please press ESC key, then ":" (without the "), now you can give orders to vi, we have to quit the editor, now write "q!" (without the ") and after ENTER. Check the path with pwd command, then check the name of the file.
 
@@ -201,12 +202,12 @@ If you don't see this things maybe you are on the wrong path or file, please pre
 
 For some people vi is a little bit complicated to use, is you have problems you can use the command cat instead of vi.
 
-``cat > /etc/default/proxy_ssh@client-a``
+``cat > /etc/default/proxy_ssh@server-a``
 
 After run the command, you will see the cursor of the terminal below the prompt of your terminal, now you can paste the configuration values, after past the values, press ENTER and then ctrl+D to exit.
 
 ````
-[root@client-a default]# cat > /etc/default/proxy_ssh@client-a
+[root@client-a default]# cat > /etc/default/proxy_ssh@server-a
 LOCAL_ADDR=localhost
 LOCAL_PORT=8000
 REMOTE_PORT=8000
@@ -215,27 +216,36 @@ REMOTE_ADDR=server-a
 ````
 Now check the content of your configuration file using the command more
 
-``more /etc/default/proxy_ssh@client-a``
+``more /etc/default/proxy_ssh@server-a``
 
 ````
-[root@client-a default]# more /etc/default/proxy_ssh@client-a
+[root@client-a default]# more /etc/default/proxy_ssh@server-a
 LOCAL_ADDR=localhost
 LOCAL_PORT=8000
-REMOTE_PORT=8000
+REMOTE_PORT=8001
 RSA_KEY=/root/.ssh/client-a
 REMOTE_ADDR=server-a
+CLIENT_USER=client-a
 ````
 
 #### Create service proxy_ssh@client-a
 
+``cd /etc/systemd/system ``
+
+`` vi proxy_ssh\@.service``
+
 ````
 [Unit]
-Description=Create a proxy ssh to %I
+Description=Create a proxy ssh to %i
 After=network.target
 
 [Service]
 EnvironmentFile=/etc/default/proxy_ssh@%i
-ExecStart=/usr/bin/ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L ${LOCAL_ADDR}:${LOCAL_PORT}:localhost:${REMOTE_PORT} -i ${RSA_KEY} ${REMOTE_ADDR}
+ExecStart=/usr/bin/ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L ${LOCAL_ADDR}:${LOCAL_PORT}:localhost:${REMOTE_PORT} -i ${RSA_KEY} ${CLIENT_USER}@${REMOTE_ADDR}
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=proxy_ssh
+
 
 RestartSec=10
 Restart=always
@@ -249,15 +259,291 @@ WantedBy=default.target
 
 #### proxy_ssh service management
 
-start
+##### status
 
-stop
+````
+[root@client-a ~]# systemctl status proxy_ssh@server-a.service
+● proxy_ssh@server-a.service - Create a proxy ssh to server-a
+   Loaded: loaded (/etc/systemd/system/proxy_ssh@.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2019-01-19 03:25:07 EST; 5min ago
+ Main PID: 14844 (ssh)
+   CGroup: /system.slice/system-proxy_ssh.slice/proxy_ssh@server-a.service
+           └─14844 /usr/bin/ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:8000:localhost:8001 -i /root/.ssh/c...
 
-restart
+Jan 19 03:25:07 client-a.local systemd[1]: Started Create a proxy ssh to server-a.
+[root@client-a ~]# 
 
-status
+
+````
+
+
+##### start
+
+````
+[root@client-a ~]# systemctl start proxy_ssh@server-a.service
+[root@client-a ~]# systemctl status proxy_ssh@server-a.service
+● proxy_ssh@server-a.service - Create a proxy ssh to server-a
+   Loaded: loaded (/etc/systemd/system/proxy_ssh@.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2019-01-19 03:33:00 EST; 1s ago
+ Main PID: 14892 (ssh)
+   CGroup: /system.slice/system-proxy_ssh.slice/proxy_ssh@server-a.service
+           └─14892 /usr/bin/ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:8000:localhost:8001 -i /root/.ssh/c...
+
+Jan 19 03:33:00 client-a.local systemd[1]: Started Create a proxy ssh to server-a.
+[root@client-a ~]# 
+
+````
+
+##### stop
+
+````
+[root@client-a ~]# systemctl stop proxy_ssh@server-a.service
+
+[root@client-a ~]# systemctl status proxy_ssh@server-a.service
+● proxy_ssh@server-a.service - Create a proxy ssh to server-a
+   Loaded: loaded (/etc/systemd/system/proxy_ssh@.service; enabled; vendor preset: disabled)
+   Active: inactive (dead)
+
+Jan 19 03:25:07 client-a.local systemd[1]: Started Create a proxy ssh to server-a.
+Jan 19 03:31:40 client-a.local systemd[1]: Stopping Create a proxy ssh to server-a...
+Jan 19 03:31:40 client-a.local systemd[1]: Stopped Create a proxy ssh to server-a.
+Jan 19 03:31:44 client-a.local systemd[1]: Started Create a proxy ssh to server-a.
+Jan 19 03:32:37 client-a.local systemd[1]: Stopping Create a proxy ssh to server-a...
+Jan 19 03:32:37 client-a.local systemd[1]: Stopped Create a proxy ssh to server-a.
+[root@client-a ~]#
+````
+
+##### restart
+
+````
+[root@client-a ~]# systemctl restart proxy_ssh@server-a.service
+[root@client-a ~]# systemctl status proxy_ssh@server-a.service
+● proxy_ssh@server-a.service - Create a proxy ssh to server-a
+   Loaded: loaded (/etc/systemd/system/proxy_ssh@.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2019-01-19 03:33:32 EST; 1s ago
+ Main PID: 14916 (ssh)
+   CGroup: /system.slice/system-proxy_ssh.slice/proxy_ssh@server-a.service
+           └─14916 /usr/bin/ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:8000:localhost:8001 -i /root/.ssh/c...
+
+Jan 19 03:33:32 client-a.local systemd[1]: Stopped Create a proxy ssh to server-a.
+Jan 19 03:33:32 client-a.local systemd[1]: Started Create a proxy ssh to server-a.
+[root@client-a ~]# 
+````
+
+#### Check HTTP connection
+
+````
+[root@client-a ~]# curl -I localhost:8000
+HTTP/1.1 200 OK
+Server: nginx/1.12.2
+Date: Sat, 19 Jan 2019 08:25:28 GMT
+Content-Type: text/html
+Content-Length: 3700
+Last-Modified: Tue, 06 Mar 2018 09:26:21 GMT
+Connection: keep-alive
+ETag: "5a9e5ebd-e74"
+Accept-Ranges: bytes
+
+[root@client-a ~]# 
+
+````
 
 ### Troubleshooting
+
+client-a proxy_ssh not started
+
+````
+[root@client-a ~]# curl -v localhost:8000 -o /dev/null
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* About to connect() to localhost port 8000 (#0)
+*   Trying ::1...
+* Connection refused
+*   Trying 127.0.0.1...
+* Connection refused
+* Failed connect to localhost:8000; Connection refused
+* Closing connection 0
+curl: (7) Failed connect to localhost:8000; Connection refused
+[root@client-a ~]# 
+
+````
+
+Check the status os the service
+
+````
+[root@client-a ~]# systemctl status proxy_ssh@server-a.service
+● proxy_ssh@server-a.service - Create a proxy ssh to server-a
+   Loaded: loaded (/etc/systemd/system/proxy_ssh@.service; enabled; vendor preset: disabled)
+   Active: inactive (dead)
+````
+
+If the status is "Active: inactive (dead)", the proxy_ssh@.service is not running for your instance.
+
+Try to start the service.
+
+````
+Jan 19 03:33:00 client-a.local systemd[1]: Started Create a proxy ssh to server-a.
+Jan 19 03:33:23 client-a.local systemd[1]: Stopping Create a proxy ssh to server-a...
+Jan 19 03:33:23 client-a.local systemd[1]: Stopped Create a proxy ssh to server-a.
+Jan 19 03:33:27 client-a.local systemd[1]: Started Create a proxy ssh to server-a.
+Jan 19 03:33:32 client-a.local systemd[1]: Stopping Create a proxy ssh to server-a...
+Jan 19 03:33:32 client-a.local systemd[1]: Stopped Create a proxy ssh to server-a.
+Jan 19 03:33:32 client-a.local systemd[1]: Started Create a proxy ssh to server-a.
+Jan 19 03:37:11 client-a.local proxy_ssh[14916]: channel 2: open failed: connect failed: Connection refused
+Jan 19 03:38:59 client-a.local systemd[1]: Stopping Create a proxy ssh to server-a...
+Jan 19 03:38:59 client-a.local systemd[1]: Stopped Create a proxy ssh to server-a.
+[root@client-a ~]# 
+[root@client-a ~]# systemctl start proxy_ssh@server-a.service
+
+[root@client-a ~]# systemctl status proxy_ssh@server-a.service
+● proxy_ssh@server-a.service - Create a proxy ssh to server-a
+   Loaded: loaded (/etc/systemd/system/proxy_ssh@.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2019-01-19 03:40:17 EST; 9s ago
+ Main PID: 14945 (ssh)
+   CGroup: /system.slice/system-proxy_ssh.slice/proxy_ssh@server-a.service
+           └─14945 /usr/bin/ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:8000:localhost:8001 -i /root/.ssh/c...
+
+Jan 19 03:40:17 client-a.local systemd[1]: Started Create a proxy ssh to server-a.
+[root@client-a ~]# 
+
+
+[root@client-a ~]# curl -v localhost:8000 -o /dev/null
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* About to connect() to localhost port 8000 (#0)
+*   Trying ::1...
+* Connected to localhost (::1) port 8000 (#0)
+> GET / HTTP/1.1
+> User-Agent: curl/7.29.0
+> Host: localhost:8000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Server: nginx/1.12.2
+< Date: Sat, 19 Jan 2019 08:41:34 GMT
+< Content-Type: text/html
+< Content-Length: 3700
+< Last-Modified: Tue, 06 Mar 2018 09:26:21 GMT
+< Connection: keep-alive
+< ETag: "5a9e5ebd-e74"
+< Accept-Ranges: bytes
+< 
+{ [data not shown]
+100  3700  100  3700    0     0   270k      0 --:--:-- --:--:-- --:--:--  277k
+* Connection #0 to host localhost left intact
+[root@client-a ~]# 
+
+
+````
+
+server-a proxy_ssh not startted
+
+````
+
+[root@client-a ~]# netstat -natup | awk '/ssh/ && /192.168.0.204/'
+tcp        0      0 192.168.0.205:49730     192.168.0.204:22        ESTABLISHED 15229/ssh           
+[root@client-a ~]#
+
+
+[root@client-a ~]# curl -v localhost:8000 -o /dev/null 
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* About to connect() to localhost port 8000 (#0)
+*   Trying ::1...
+* Connected to localhost (::1) port 8000 (#0)
+> GET / HTTP/1.1
+> User-Agent: curl/7.29.0
+> Host: localhost:8000
+> Accept: */*
+> 
+* Empty reply from server
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+* Connection #0 to host localhost left intact
+curl: (52) Empty reply from server
+[root@client-a ~]# 
+
+[root@client-a ~]# systemctl status proxy_ssh@server-a.service
+● proxy_ssh@server-a.service - Create a proxy ssh to server-a
+   Loaded: loaded (/etc/systemd/system/proxy_ssh@.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2019-01-19 03:43:43 EST; 13min ago
+ Main PID: 15011 (ssh)
+   CGroup: /system.slice/system-proxy_ssh.slice/proxy_ssh@server-a.service
+           └─15011 /usr/bin/ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:8000:localhost:8001 -i /root/.ssh/c...
+
+Jan 19 03:43:43 client-a.local systemd[1]: Started Create a proxy ssh to server-a.
+Jan 19 03:56:30 client-a.local proxy_ssh[15011]: channel 2: open failed: connect failed: Connection refused
+[root@client-a ~]# 
+
+````
+
+server-b app on 8000 not working
+
+````
+[root@client-a ~]# curl -v localhost:8000 -o /dev/null 
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* About to connect() to localhost port 8000 (#0)
+*   Trying ::1...
+* Connected to localhost (::1) port 8000 (#0)
+> GET / HTTP/1.1
+> User-Agent: curl/7.29.0
+> Host: localhost:8000
+> Accept: */*
+> 
+* Empty reply from server
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+* Connection #0 to host localhost left intact
+curl: (52) Empty reply from server
+[root@client-a ~]#
+
+[root@client-a ~]# ssh -i /root/.ssh/client-a client-a@server-a curl -v localhost:18000 -o /dev/null
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* About to connect() to localhost port 18000 (#0)
+*   Trying ::1...
+* Connected to localhost (::1) port 18000 (#0)
+> GET / HTTP/1.1
+> User-Agent: curl/7.29.0
+> Host: localhost:18000
+> Accept: */*
+> 
+* Empty reply from server
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+* Connection #0 to host localhost left intact
+curl: (52) Empty reply from server
+[root@client-a ~]# 
+
+
+[root@client-a ~]# ssh -i /root/.ssh/client-a client-a@server-a curl -v localhost:18000 -o /dev/null
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* About to connect() to localhost port 18000 (#0)
+*   Trying ::1...
+* Connected to localhost (::1) port 18000 (#0)
+> GET / HTTP/1.1
+> User-Agent: curl/7.29.0
+> Host: localhost:18000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Server: nginx/1.12.2
+< Date: Sat, 19 Jan 2019 09:07:58 GMT
+< Content-Type: text/html
+< Content-Length: 3700
+< Last-Modified: Tue, 06 Mar 2018 09:26:21 GMT
+< Connection: keep-alive
+< ETag: "5a9e5ebd-e74"
+< Accept-Ranges: bytes
+< 
+{ [data not shown]
+100  3700  100  3700    0     0   308k      0 --:--:-- --:--:-- --:--:--  361k
+* Connection #0 to host localhost left intact
+[root@client-a ~]# 
+
+
+
+````
+
 
 
 
