@@ -187,6 +187,15 @@ WantedBy=default.target
 
 #### Enabled service on startup
 
+To enable our service at the startup of the server, we have to run the following commadnd.
+
+``systemctl enable proxy_ssh@server-b.service ``
+
+````
+[root@server-a ~]# systemctl enable proxy_ssh@server-b.service
+Created symlink from /etc/systemd/system/default.target.wants/proxy_ssh@server-b.service to /etc/systemd/system/proxy_ssh@.service.
+[root@server-a ~]#
+````
 
 #### proxy_ssh service management
 
