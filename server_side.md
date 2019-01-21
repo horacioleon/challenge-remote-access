@@ -10,6 +10,28 @@
 
 ### Create user for client-a on server-a
 
+````
+[root@server-a ~]# useradd client-a
+[root@server-a ~]# passwd client-a
+Changing password for user client-a.
+New password: 
+Retype new password: 
+passwd: all authentication tokens updated successfully.
+[root@server-a ~]# 
+````
+
+
+### Create user for server-a on server-b
+
+````
+[root@server-b ~]# useradd client-a
+[root@server-b ~]# passwd client-a
+Changing password for user client-a.
+New password: 
+Retype new password: 
+passwd: all authentication tokens updated successfully.
+[root@server-b ~]# 
+````
 ### Create service user on server-b
 
 ### Create RSA keys
@@ -27,25 +49,25 @@ This command ask to you the path to save the key, please introduce /root/.ssh/se
 [root@server-a ~]# ssh-keygen -t rsa -b 4096
 Generating public/private rsa key pair.
 Enter file in which to save the key (/root/.ssh/id_rsa): /root/.ssh/server-a
-Created directory '/root/.ssh'.
 Enter passphrase (empty for no passphrase): 
 Enter same passphrase again: 
 Your identification has been saved in /root/.ssh/server-a.
 Your public key has been saved in /root/.ssh/server-a.pub.
 The key fingerprint is:
-SHA256:C7uAVnj9DI2nEGWSmhheZ9DBGlgdWuNK2tskIerCQX8 root@server-a.remote
+SHA256:OO/XQdnXq7QZPJ7H5vzsrltLKq5SFV/Xpwo/BUx1mMY root@server-a.remoto
 The key's randomart image is:
 +---[RSA 4096]----+
-|  oo**=          |
-|.. o=X.          |
-|.=.**.           |
-|+.Oooo o         |
-|.o.=+E= S        |
-|o .+*. O .       |
-|.oo...o +        |
-|..   . .         |
-|      .          |
+|           o.o.oo|
+|           .o Eo+|
+|            o=..+|
+|       .  ..o.+ o|
+|      o S .+.o ..|
+|       o .  == . |
+|        o  .ooO..|
+|       o  ...*+*.|
+|        ooo...*O*|
 +----[SHA256]-----+
+[root@server-a ~]# 
 ```
 
 #### Know errors
@@ -58,7 +80,7 @@ The key's randomart image is:
 
 To copy your public key to the remote server B, you have to run the following command:
 
-``ssh-copy-id -i /root/.ssh/server-a proxy_ssh_user@server-b``
+``ssh-copy-id -i /root/.ssh/server-a client-a@server-b``
 
 This command ask you at the beginning if you accept the key fingerprint, write "yes" and press ENTER, then you have to insert your password.
 
@@ -71,29 +93,31 @@ and check to make sure that only the key(s) you wanted were added.
 Now your public rsa key is saved on the server-b and you can login without password.
 
 ````
-[root@server-a ~]# ssh-copy-id -i /root/.ssh/server-a prosy_ssh_user@server-b
+[root@server-a ~]# ssh-copy-id -i /root/.ssh/server-a client-a@server-b
 /usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/root/.ssh/server-a.pub"
-The authenticity of host 'server-b (192.168.0.202)' can't be established.
+The authenticity of host 'server-b (192.168.0.209)' can't be established.
 ECDSA key fingerprint is SHA256:V5ZR5hyi/Enl69+0uqqH6rSA0cWHY3Gimkt8sP4WYAY.
 ECDSA key fingerprint is MD5:6b:03:1b:a5:43:1c:73:f9:90:0c:d7:a7:b1:12:e6:b2.
 Are you sure you want to continue connecting (yes/no)? yes
 /usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
 /usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
-proxy_ssh_user@server-b's password: 
+client-a@server-b's password: 
 
 Number of key(s) added: 1
 
-Now try logging into the machine, with:   "ssh 'proxy_ssh_user@server-b'"
+Now try logging into the machine, with:   "ssh 'client-a@server-b'"
 and check to make sure that only the key(s) you wanted were added.
+
+[root@server-a ~]#
 ````
 #### Test your access
 
 ````
-[root@server-a ~]# ssh -i /root/.ssh/server-a proxy_ssh_user@server-b
-[proxy_ssh_user@server-b ~]$ exit
+[root@server-a ~]# ssh -i /root/.ssh/server-a client-a@server-b
+[client-a@server-b ~]$ exit
 logout
 Connection to server-b closed.
-[root@server-a ~]# 
+[root@server-a ~]#
 ````
 
 ### proxy_ssh Service
@@ -108,11 +132,11 @@ Now you have to create the file proxy_ssh@server-b and add the followings values
 
 ````
 LOCAL_ADDR=localhost
-LOCAL_PORT=8000
-REMOTE_PORT=8001
-RSA_KEY=/root/.ssh/client-a
-REMOTE_ADDR=server-a
-CLIENT_USER=proxy_ssh_user
+LOCAL_PORT=18000
+REMOTE_PORT=8000
+RSA_KEY=/root/.ssh/server-a
+REMOTE_ADDR=server-b
+CLIENT_USER=client-a
 ````
 
 To create and edit the file we going to use vi (a simple tex editor). To open vi and start to work on our proxy_ssh@server-b file, run the following command.
@@ -143,7 +167,7 @@ LOCAL_PORT=18000
 REMOTE_PORT=8000
 RSA_KEY=/root/.ssh/server-a
 REMOTE_ADDR=server-b
-CLIENT_USER=proxy_ssh_user
+CLIENT_USER=client-a
 ````
 Now check the content of your configuration file using the command more
 
@@ -152,11 +176,11 @@ Now check the content of your configuration file using the command more
 ````
 [root@server-a default]# more /etc/default/proxy_ssh@server-b
 LOCAL_ADDR=localhost
-LOCAL_PORT=8000
-REMOTE_PORT=18000
+LOCAL_PORT=18000
+REMOTE_PORT=8000
 RSA_KEY=/root/.ssh/server-a
 REMOTE_ADDR=server-b
-CLIENT_USER=proxy_ssh_user
+CLIENT_USER=client-a
 ````
 
 #### Create service proxy_ssh@server-a
@@ -224,14 +248,13 @@ Jan 19 03:25:07 server-a.remote systemd[1]: Started Create a proxy ssh to server
 [root@server-a ~]# systemctl status proxy_ssh@server-b.service
 ● proxy_ssh@server-b.service - Create a proxy ssh to server-b
    Loaded: loaded (/etc/systemd/system/proxy_ssh@.service; enabled; vendor preset: disabled)
-   Active: active (running) since Sat 2019-01-19 03:33:00 EST; 1s ago
- Main PID: 14892 (ssh)
+   Active: active (running) since Mon 2019-01-21 04:23:08 EST; 6s ago
+ Main PID: 4094 (ssh)
    CGroup: /system.slice/system-proxy_ssh.slice/proxy_ssh@server-b.service
-           └─14892 /usr/bin/ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:18000:localhost:8000 -i /root/.ssh/c...
+           └─4094 /usr/bin/ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:18000:localhost:8000 -i /root/.ssh/s...
 
-Jan 19 03:33:00 server-a.remote systemd[1]: Started Create a proxy ssh to server-b.
+Jan 21 04:23:08 server-a.remoto systemd[1]: Started Create a proxy ssh to server-b.
 [root@server-a ~]# 
-
 ````
 
 ##### stop
@@ -242,15 +265,14 @@ Jan 19 03:33:00 server-a.remote systemd[1]: Started Create a proxy ssh to server
 [root@server-a ~]# systemctl status proxy_ssh@server-b.service
 ● proxy_ssh@server-b.service - Create a proxy ssh to server-b
    Loaded: loaded (/etc/systemd/system/proxy_ssh@.service; enabled; vendor preset: disabled)
-   Active: inactive (dead)
+   Active: inactive (dead) since Mon 2019-01-21 04:23:38 EST; 1min 6s ago
+  Process: 4094 ExecStart=/usr/bin/ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L ${LOCAL_ADDR}:${LOCAL_PORT}:localhost:${REMOTE_PORT} -i ${RSA_KEY} ${CLIENT_USER}@${REMOTE_ADDR} (code=exited, status=0/SUCCESS)
+ Main PID: 4094 (code=exited, status=0/SUCCESS)
 
-Jan 19 03:25:07 server-a.remote systemd[1]: Started Create a proxy ssh to server-b.
-Jan 19 03:31:40 server-a.remote systemd[1]: Stopping Create a proxy ssh to server-b...
-Jan 19 03:31:40 server-a.remote systemd[1]: Stopped Create a proxy ssh to server-b.
-Jan 19 03:31:44 server-a.remote systemd[1]: Started Create a proxy ssh to server-b.
-Jan 19 03:32:37 server-a.remote systemd[1]: Stopping Create a proxy ssh to server-b...
-Jan 19 03:32:37 server-a.remote systemd[1]: Stopped Create a proxy ssh to server-b.
-[root@server-a ~]#
+Jan 21 04:23:08 server-a.remoto systemd[1]: Started Create a proxy ssh to server-b.
+Jan 21 04:23:38 server-a.remoto systemd[1]: Stopping Create a proxy ssh to server-b...
+Jan 21 04:23:38 server-a.remoto systemd[1]: Stopped Create a proxy ssh to server-b.
+[root@server-a ~]# 
 ````
 
 ##### restart
@@ -260,13 +282,13 @@ Jan 19 03:32:37 server-a.remote systemd[1]: Stopped Create a proxy ssh to server
 [root@server-a ~]# systemctl status proxy_ssh@server-b.service
 ● proxy_ssh@server-b.service - Create a proxy ssh to server-b
    Loaded: loaded (/etc/systemd/system/proxy_ssh@.service; enabled; vendor preset: disabled)
-   Active: active (running) since Sat 2019-01-19 03:33:32 EST; 1s ago
- Main PID: 14916 (ssh)
+   Active: active (running) since Mon 2019-01-21 04:25:34 EST; 1s ago
+ Main PID: 4134 (ssh)
    CGroup: /system.slice/system-proxy_ssh.slice/proxy_ssh@server-b.service
-           └─14916 /usr/bin/ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:8000:localhost:18000 -i /root/.ssh/c...
+           └─4134 /usr/bin/ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:18000:localhost:8000 -i /root/.ssh/s...
 
-Jan 19 03:33:32 server-a.remote systemd[1]: Stopped Create a proxy ssh to server-b.
-Jan 19 03:33:32 server-a.remote systemd[1]: Started Create a proxy ssh to server-b.
+Jan 21 04:25:34 server-a.remoto systemd[1]: Stopped Create a proxy ssh to server-b.
+Jan 21 04:25:34 server-a.remoto systemd[1]: Started Create a proxy ssh to server-b.
 [root@server-a ~]# 
 ````
 
@@ -276,7 +298,7 @@ Jan 19 03:33:32 server-a.remote systemd[1]: Started Create a proxy ssh to server
 [root@server-a ~]# curl -I localhost:18000
 HTTP/1.1 200 OK
 Server: nginx/1.12.2
-Date: Sat, 19 Jan 2019 08:25:28 GMT
+Date: Mon, 21 Jan 2019 09:26:04 GMT
 Content-Type: text/html
 Content-Length: 3700
 Last-Modified: Tue, 06 Mar 2018 09:26:21 GMT
