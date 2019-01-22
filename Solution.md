@@ -2,7 +2,7 @@
 
 To solve this problem, I used two ssh tunnel as a proxy service.
 
-The first ssh tunnel is enable from the client-a to server-a,  using the port 8000 to create a tunnel to the 18000 tcp port on server-a.  Due to the 8000 tcp port is on use on server-a, to keep some relationship between the services on both sides I decided to use the 18000 tcp port.   
+The first ssh tunnel is enable from the client-a to server-a,  using the port 8000 to create a tunnel to 18000 tcp port on server-a.  Due to 8000 tcp port is on use on server-a, to keep some name relationship between the services on both sides I decided to use the 18000 tcp port.   
 
 The second tunnel is established on server-a to server-b, using the tcp port 18000 to publish the web application on server-a from server-b.
 
