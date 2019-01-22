@@ -17,6 +17,29 @@ proxy_ssh@client-a_server-b.service
 
 Only root user on client-a can get access to the server-b using the RSA key, but all users can access to the HTTP service using http://localhost:8000 as endpoint.
 
+Client side
+
+````
+ ------------------------------                             -----------------------------
+|  client-A                    |                           |  server-a                   |
+|  http://localhost:8000       | ---    ssh tunnel.   ---> |  http://localhost:18000     |
+|  proxy_ssh service           |    tcp 8000 -> tcp 18000  |  proxy_ssh service          |
+|  - instance: client-a        |                           |   - instance:               |                              |                              |                           |  client-a_server-b.         |
+ ------------------------------                             -----------------------------
+````
+
+
+Server side
+
+````
+ ------------------------------                             -----------------------------
+|  server-A                    |                           |  server-b                   |
+|  http://localhost:18000      |  ---    ssh tunnel   ---> |  http://localhost:8000      |
+|  proxy_ssh service           |    tcp 18000 -> tcp 8000  |  web service                |
+|  - instance:                 |                           |                             |                              |  client-a_server-b           |                           |                             |
+ ------------------------------                             -----------------------------
+````
+
 Please see below the configuration documents for each environment.
 
 [Client configuration](client_side.md)
