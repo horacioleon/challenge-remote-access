@@ -10,6 +10,18 @@
 6. All users on client-a machine can access to the web application on server-b
 7. All tools and applications used on client-a and server-a come by default with CentOS 7 and this was the main reason to choose a ssh as a proxy http.
 
+
+## Diagram
+
+
+````
+ ------------------------------                             -----------------------------
+|  client-A                    |                           |  server-a                   |
+|  http://localhost:8000       | ---    ssh tunnel.   ---> |  http://localhost:18000     |
+|  proxy_ssh service           |    tcp 8000 -> tcp 18000  |  proxy_ssh service          |
+|  - instance: client-a        |                           |   - instance:               |                              |                              |                           |  client-a_server-b.         |
+ ------------------------------                             -----------------------------
+````
 ## Configuration
 ### Access to the machine client-a
 
@@ -506,6 +518,21 @@ Copy the line from ssh to the end.
 
 And run the command manually
 
+**bind: Address already in use**
+
+If you get this error when you run the command manually, your system has another application using 8000 tcp port. Please check with your local support, because you can't start your tunnel if is other application using the same port.
+
+````
+[root@client-a ~]# ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:8000:localhost:18000 -i /root/.ssh/client-a client-a@server-a
+bind: Address already in use
+channel_setup_fwd_listener_tcpip: cannot listen to port: 18000
+Could not request local forwarding.
+[root@client-a ~]# 
+
+````
+
+**Warning: Identity file /root/.ssh/client-a not accessible: No such file or directory**
+
 ````
 [root@client-a ~]# ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:8000:localhost:18000 -i /root/.ssh/client-a client-a@server-a
 Warning: Identity file /root/.ssh/client-a not accessible: No such file or directory.
@@ -523,6 +550,7 @@ In this case the problem was related do the private rsa key file. To solve this 
 
 If you recover your key from a backup, maybe the key come with wrong permissions, if you try to open the tunnel manually, you get a different error.
 
+**WARNING: UNPROTECTED PRIVATE KEY FILE!**
 
 ````
 [root@client-a ~]# ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:8000:localhost:18000 -i /root/.ssh/client-a client-a@server-a
