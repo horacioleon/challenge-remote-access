@@ -15,7 +15,7 @@ proxy_ssh@server-a.service
 
 proxy_ssh@client-a_server-b.service
 
-Only root user on client-a can get access to the server-b using the RSA key, but all users can access to the HTTP service using http://localhost:8000 as endpoint.
+Only root user on client-a can get access to the server-a using the RSA key, but all users can access to the HTTP service using http://localhost:8000 as endpoint.
 
 Client side
 
