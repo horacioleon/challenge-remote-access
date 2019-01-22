@@ -256,7 +256,7 @@ WantedBy=default.target
 
 #### Enabled service on startup
 
-To enable our service at the startup of the server, we have to run the following commadnd.
+To enable our service at the startup of the server, we have to run the following command.
 
 ``systemctl enable proxy_ssh@server-a.service``
 
@@ -363,7 +363,7 @@ Accept-Ranges: bytes
 
 #### client-a proxy_ssh not started
 
-You try to reach the applcation, but you get a connections refused from server
+You try to reach the application, but you get a connections refused from server
 
 ````
 [root@client-a ~]# curl -v localhost:8000 -o /dev/null
@@ -445,15 +445,15 @@ Use curl to check the HTTP service
 
 If the curl output return a 200 HTTP code, you have solve the problem. 
 
-Still have no connetion? Maybe the tunnel to server-a is not up
+Still have no connection? Maybe the tunnel to server-a is not up
 
-#### Tunnel to server-a is not up, but the proxy_ssh service is runnig in my machine
+#### Tunnel to server-a is not up, but the proxy_ssh service is running in my machine
 
-Now with the proxy_ssh service up, we have to check if the tunnel to the server-a is up, for this task we going to use netstat as root user. Some instalations of CentOS has no installed netstat by default, to install run the following commnad.
+Now with the proxy_ssh service up, we have to check if the tunnel to the server-a is up, for this task we going to use netstat as root user. Some installations of CentOS has no installed netstat by default, to install run the following command.
 
 ``yum install net-tools -y ``
 
-The service proxy_ssh service can be running ok in your machine, but the tunnel can be down. The proxy_ssh service was configurated to restart the session if the tunnel is down, for this reason the service can be up and the tunnel down. Use netstat to check the conections.
+The service proxy_ssh service can be running ok in your machine, but the tunnel can be down. The proxy_ssh service was configured to restart the session if the tunnel is down, for this reason the service can be up and the tunnel down. Use netstat to check the connections.
 
 ``netstat -at | awk '/ssh/ && /SERVER_NAME/'``
 
@@ -488,7 +488,7 @@ If you not see any ESTABLISHED connections, the tunnel to the server-a is not up
 * Possible problems
 	- Missing rsa-key file
 	- Bad permissions on rsa_key
-	- Server-a change and has no configuration for your usser
+	- Server-a change and has no configuration for your user
 
 Run the following command to check the tunnel manually
 
@@ -504,7 +504,7 @@ Copy the line from ssh to the end.
 
 ``ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:8000:localhost:18000 -i /root/.ssh/client-a client-a@server-a``
 
-And run the commnad manually
+And run the command manually
 
 ````
 [root@client-a ~]# ssh -NT -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -L localhost:8000:localhost:18000 -i /root/.ssh/client-a client-a@server-a
@@ -519,7 +519,7 @@ Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password).
 
 ````
 
-In this case the problem was related do the private rsa key file. To solve this problem recreate the key (ssh-keygen) according to the procedure and resync (ssh-copy-id) with your account or recover the key from a backup.
+In this case the problem was related do the private rsa key file. To solve this problem recreate the key (ssh-keygen) according to the procedure and re-sync (ssh-copy-id) with your account or recover the key from a backup.
 
 If you recover your key from a backup, maybe the key come with wrong permissions, if you try to open the tunnel manually, you get a different error.
 
