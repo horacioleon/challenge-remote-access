@@ -12,6 +12,7 @@ The name of the service is proxy_ssh and they receive the instance of the new tu
 To identify the services an create an easy way to understand the process the name on client side has the ssh destiny server in the instance name and from the internal server ssh tunnel I added the name os the client to identify each tunnel by clients.
 
 proxy_ssh@server-a.service 
+
 proxy_ssh@client-a_server-b.service
 
 Only root user on client-a can get access to the server-b using the RSA key, but all users can access to the HTTP service using http://localhost:8000 as endpoint.
