@@ -7,6 +7,18 @@
 4. The tunnel ssh is started as a service
 7. All tools and applications used on client-a and server-a come by default with CentOS 7 and this was the main reason to choose a ssh as a proxy http.
 
+## Diagram
+
+
+````
+ ------------------------------                             -----------------------------
+|  server-A                    |                           |  server-b                   |
+|  http://localhost:18000      | ---    ssh tunnel   ---> |  http://localhost:8000      |
+|  proxy_ssh service           |    tcp 18000 -> tcp 8000  |  web service                |
+|  - instance:                 |                           |                             |                              |  client-a_server-b           |                           |                             |
+ ------------------------------                             -----------------------------
+````
+
 ## Configuration
 
 ### Create user for client-a on server-a
