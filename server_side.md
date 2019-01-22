@@ -1,3 +1,4 @@
+
 # Server side
 
 ## Considerations
@@ -208,7 +209,7 @@ WantedBy=default.target
 
 #### Enabled service on startup
 
-To enable our service at the startup of the server, we have to run the following commadnd.
+To enable our service at the startup of the server, we have to run the following command.
 
 ``systemctl enable proxy_ssh@client-a_server-b.service ``
 
@@ -308,4 +309,3 @@ Accept-Ranges: bytes
 ````
 
 ### Troubleshooting
-
