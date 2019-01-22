@@ -13,7 +13,7 @@
 ````
  ------------------------------                             -----------------------------
 |  server-A                    |                           |  server-b                   |
-|  http://localhost:18000      | ---    ssh tunnel   ---> |  http://localhost:8000      |
+|  http://localhost:18000      |  ---    ssh tunnel   ---> |  http://localhost:8000      |
 |  proxy_ssh service           |    tcp 18000 -> tcp 8000  |  web service                |
 |  - instance:                 |                           |                             |                              |  client-a_server-b           |                           |                             |
  ------------------------------                             -----------------------------
