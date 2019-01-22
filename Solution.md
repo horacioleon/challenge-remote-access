@@ -2,11 +2,11 @@
 
 To solve this problem, I used two ssh tunnel as a proxy service.
 
-The first ssh tunnel is enable from the client-a to server-a,  using the port 8000 to create a tunnel to 18000 tcp port on server-a.  Due to 8000 tcp port is on use on server-a, to keep some name relationship between the services on both sides I decided to use the 18000 tcp port.   
+The first ssh tunnel is enable from the client-a to server-a,  using the port 8000 to create a tunnel to 18000 tcp port on server-a.  Due to 8000 tcp port is in use on server-a and to keep some name relationship between the services on both sides I decided to use the 18000 tcp port.   
 
 The second tunnel is established on server-a to server-b, using the tcp port 18000 to publish the web application on server-a from server-b.
 
-The solution uses the same service on both sides (client and server) this service is managed by system and can restart the ssh connections if some problems happen. The ssh connection use a RSA certificate to avoid enter a password to give more security.
+The solution uses the same service on both sides (client and server) this service is managed by systemd and can restart the ssh connections if some problems happen. The ssh connection use a RSA certificate to avoid enter a password to give more security.
 
 The name of the service is proxy_ssh and they receive the instance of the new tunnel to be enabled, with this kind of configuration we can configure more than one instance and tunnel. 
 To identify the services an create an easy way to understand the process the name on client side has the ssh destiny server in the instance name and from the internal server ssh tunnel I added the name os the client to identify each tunnel by clients.
